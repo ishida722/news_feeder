@@ -1,0 +1,51 @@
+name: RSS翻訳メール配信
+
+on:
+  schedule:
+    # 毎朝7時（JST）= UTC 22時（前日）
+    - cron: '0 22 * * *'
+  workflow_dispatch: # 手動実行ボタンも有効化
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write   # Artifactsのアップロードに必要
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 依存パッケージをインストール
+        run: pip install feedparser requests
+
+      # 前回の既読DBをダウンロード（なければスキップ）
+      - name: 既読DB（Artifact）をダウンロード
+        uses: actions/download-artifact@v4
+        with:
+          name: rss-seen-db
+          path: .
+        continue-on-error: true  # 初回はArtifactがないのでエラーを無視
+
+      - name: RSSスクリプトを実行
+        env:
+          DEEPL_API_KEY:       ${{ secrets.DEEPL_API_KEY }}
+          GMAIL_ADDRESS:       ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD:  ${{ secrets.GMAIL_APP_PASSWORD }}
+          TO_ADDRESS:          ${{ secrets.TO_ADDRESS }}
+        run: python rss_mail.py
+
+      # 実行後のDBをArtifactとして保存（90日間保持）
+      - name: 既読DBをArtifactとしてアップロード
+        uses: actions/upload-artifact@v4
+        if: always()   # スクリプトが失敗しても保存する
+        with:
+          name: rss-seen-db
+          path: rss_seen.db
+          retention-days: 90
+          overwrite: true
