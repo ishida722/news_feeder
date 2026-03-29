@@ -9,9 +9,22 @@ GitHub Actions で毎朝 7:00 JST (22:00 UTC) に自動実行する。
 ```
 news_feeder/
 ├── CLAUDE.md                      # このファイル（作業コンテキスト）
-├── rss_mail.py                    # メインスクリプト
+├── pyproject.toml                 # プロジェクト設定・依存パッケージ（uv 管理）
 ├── feeds.yml                      # 購読フィード一覧（外部定義）
-├── requirements.txt               # Python 依存パッケージ
+├── src/
+│   └── news_feeder/
+│       ├── __init__.py
+│       ├── config.py              # CONFIG 設定辞書
+│       ├── db.py                  # SQLite 既読管理
+│       ├── translate.py           # DeepL 翻訳
+│       ├── feeds.py               # フィード取得・翻訳
+│       ├── email.py               # メール生成・送信
+│       └── main.py                # エントリポイント
+├── tests/
+│   ├── conftest.py                # pytest フィクスチャ
+│   ├── test_db.py
+│   ├── test_translate.py
+│   └── test_feeds.py
 ├── .github/
 │   └── workflows/
 │       └── rss_mail.yml           # GitHub Actions ワークフロー
@@ -39,9 +52,15 @@ news_feeder/
 ## ローカル実行
 
 ```bash
-pip install -r requirements.txt
+# 依存パッケージのインストール（uv）
+uv sync
+
+# 実行
 export DEEPL_API_KEY=xxx GMAIL_ADDRESS=xxx GMAIL_APP_PASSWORD=xxx TO_ADDRESS=xxx
-python rss_mail.py
+uv run news-feeder
+
+# テスト実行
+uv run pytest
 ```
 
 ## feeds.yml の形式

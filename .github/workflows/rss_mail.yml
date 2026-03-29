@@ -16,13 +16,13 @@ jobs:
       - name: リポジトリをチェックアウト
         uses: actions/checkout@v4
 
-      - name: Python セットアップ
-        uses: actions/setup-python@v5
+      - name: uv をセットアップ
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.11'
+          enable-cache: true
 
       - name: 依存パッケージをインストール
-        run: pip install -r requirements.txt
+        run: uv sync
 
       # 前回の既読DBをダウンロード（なければスキップ）
       - name: 既読DB（Artifact）をダウンロード
@@ -38,7 +38,7 @@ jobs:
           GMAIL_ADDRESS:       ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD:  ${{ secrets.GMAIL_APP_PASSWORD }}
           TO_ADDRESS:          ${{ secrets.TO_ADDRESS }}
-        run: python rss_mail.py
+        run: uv run news-feeder
 
       # 実行後のDBをArtifactとして保存（90日間保持）
       - name: 既読DBをArtifactとしてアップロード
