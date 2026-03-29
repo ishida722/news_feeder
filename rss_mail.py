@@ -18,6 +18,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 import requests
+import yaml
 
 # ── ログ設定 ──────────────────────────────────────────────
 _handlers: list = [logging.StreamHandler()]
@@ -48,19 +49,18 @@ CONFIG = {
     "MAX_ARTICLES_PER_FEED": 10,
 }
 
-# ── 購読RSSフィード一覧 ──────────────────────────────────
-RSS_FEEDS = [
-    # テック・AI
-    {"name": "TechCrunch", "url": "https://techcrunch.com/feed/"},
-    {"name": "The Verge", "url": "https://www.theverge.com/rss/index.xml"},
-    # 政治・国際
-    {"name": "Reuters World", "url": "https://feeds.reuters.com/reuters/worldNews"},
-    # ビジネス・経済
-    {"name": "FT", "url": "https://www.ft.com/?format=rss"},
-    # 左派・論考
-    {"name": "Jacobin", "url": "https://jacobin.com/feed/"},
-    # ↑ ここにフィードを追加してね！
-]
+# ── 購読RSSフィード一覧（feeds.yml から読み込む） ────────────
+def load_feeds(feeds_path: str = "feeds.yml") -> list[dict]:
+    """feeds.yml からフィード一覧を読み込む"""
+    try:
+        with open(feeds_path, encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        feeds = data.get("feeds", [])
+        logger.info(f"feeds.yml から {len(feeds)} 件のフィードを読み込みました")
+        return feeds
+    except FileNotFoundError:
+        logger.error(f"{feeds_path} が見つかりません。feeds.yml を作成してください。")
+        raise
 
 
 # ── DB初期化 ────────────────────────────────────────────
@@ -254,9 +254,10 @@ def send_email(html_body: str, article_count: int, cfg: dict) -> None:
 def main():
     logger.info("=== RSS翻訳メール配信 開始 ===")
     conn = init_db(CONFIG["DB_PATH"])
+    rss_feeds = load_feeds()
 
     all_articles = []
-    for feed in RSS_FEEDS:
+    for feed in rss_feeds:
         try:
             articles = fetch_new_articles(
                 feed,

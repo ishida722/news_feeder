@@ -22,7 +22,7 @@ jobs:
           python-version: '3.11'
 
       - name: 依存パッケージをインストール
-        run: pip install feedparser requests
+        run: pip install -r requirements.txt
 
       # 前回の既読DBをダウンロード（なければスキップ）
       - name: 既読DB（Artifact）をダウンロード

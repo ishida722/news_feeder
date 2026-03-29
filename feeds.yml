@@ -1,0 +1,29 @@
+# 購読RSSフィード一覧
+# name: メール内で表示されるフィード名
+# url:  RSSフィードのURL
+#
+# フィードを追加・削除するにはここを編集するだけでOK
+
+feeds:
+  # テック・AI
+  - name: "TechCrunch"
+    url: "https://techcrunch.com/feed/"
+
+  - name: "The Verge"
+    url: "https://www.theverge.com/rss/index.xml"
+
+  # 政治・国際
+  - name: "Reuters World"
+    url: "https://feeds.reuters.com/reuters/worldNews"
+
+  # ビジネス・経済
+  - name: "FT"
+    url: "https://www.ft.com/?format=rss"
+
+  # 左派・論考
+  - name: "Jacobin"
+    url: "https://jacobin.com/feed/"
+
+  # ↑ ここにフィードを追加してください
+  # - name: "フィード名"
+  #   url: "https://example.com/feed.xml"
