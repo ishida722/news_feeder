@@ -13,8 +13,8 @@ def translate_deepl(text: str, api_key: str, max_chars: int = 1500) -> str:
     try:
         resp = requests.post(
             "https://api-free.deepl.com/v2/translate",
+            headers={"Authorization": f"DeepL-Auth-Key {api_key}"},
             data={
-                "auth_key": api_key,
                 "text": text,
                 "target_lang": "JA",
             },
