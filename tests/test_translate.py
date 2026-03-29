@@ -19,7 +19,7 @@ def test_translate_truncates_to_max_chars(mocker):
     long_text = "a" * 2000
     translate_deepl(long_text, api_key="dummy", max_chars=100)
 
-    sent_text = mock_post.call_args[1]["data"]["text"]
+    sent_text = mock_post.call_args[1]["json"]["text"][0]
     assert len(sent_text) == 100
 
 
